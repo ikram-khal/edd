@@ -1,7 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const url = (import.meta.env.VITE_SUPABASE_URL ?? '').trim();
+/** Base URL only: https://xxxx.supabase.co (no /rest/v1, no trailing slash). */
+function normalizeSupabaseUrl(raw: string): string {
+  const s = raw.trim();
+  if (!s) return s;
+  try {
+    const u = new URL(s);
+    return u.origin;
+  } catch {
+    return s.replace(/\/+$/, '');
+  }
+}
+
+const url = normalizeSupabaseUrl(import.meta.env.VITE_SUPABASE_URL ?? '');
 const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '').trim();
 
 /** False on Vercel if env vars were not set at build time — app still mounts; API calls will fail. */

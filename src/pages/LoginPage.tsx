@@ -12,6 +12,21 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
 
+function isBrowserFetchFailure(err: unknown): boolean {
+  const msg =
+    err instanceof Error
+      ? err.message
+      : typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : '';
+  const s = msg.toLowerCase();
+  return (
+    s.includes('failed to fetch') ||
+    s.includes('load failed') ||
+    s.includes('networkerror')
+  );
+}
+
 export default function LoginPage() {
   const { t } = useI18n();
   const [mode, setMode] = useState<'voter' | 'admin'>('voter');
@@ -53,8 +68,8 @@ export default function LoginPage() {
       setMember({ id: member.id, name: member.name, pin: member.pin });
       toast.success(`${t('welcome')}, ${member.name}!`);
       navigate('/vote');
-    } catch (err: any) {
-      toast.error(err.message || t('error'));
+    } catch (err: unknown) {
+      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
     } finally {
       setLoading(false);
     }
@@ -76,8 +91,8 @@ export default function LoginPage() {
       } else {
         toast.error(t('wrong_password'));
       }
-    } catch (err: any) {
-      toast.error(err.message || t('error'));
+    } catch (err: unknown) {
+      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
     } finally {
       setLoading(false);
     }
@@ -110,8 +125,8 @@ export default function LoginPage() {
       } else {
         toast.error(t('username_taken'));
       }
-    } catch (err: any) {
-      toast.error(err.message || t('error'));
+    } catch (err: unknown) {
+      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
     } finally {
       setLoading(false);
     }

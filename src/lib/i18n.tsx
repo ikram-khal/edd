@@ -118,6 +118,10 @@ const translations = {
     qq: 'Vercel-де VITE_SUPABASE_URL және VITE_SUPABASE_PUBLISHABLE_KEY қосың, содан кейін қайта деплой етің.',
     ru: 'В Vercel добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY (Environment Variables) и заново задеплойте проект.',
   },
+  fetch_failed_hint: {
+    qq: 'Серверге қосылу мүмкин емес. Supabase URL тек https://…supabase.co болыўы керек; жоба тоқтатылмағанын тексерің; VPN/блоклаўшы өширің.',
+    ru: 'Не удаётся связаться с Supabase. Проверь: в VITE_SUPABASE_URL только адрес вида https://xxx.supabase.co (без /rest/v1); проект в Dashboard не на паузе; после смены env на Vercel сделай Redeploy; попробуй другую сеть/VPN.',
+  },
 } as const;
 
 type TranslationKey = keyof typeof translations;
