@@ -11,6 +11,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
+import { getRequestErrorMessage } from '@/lib/request-error';
 
 function isBrowserFetchFailure(err: unknown): boolean {
   const msg =
@@ -69,7 +70,9 @@ export default function LoginPage() {
       toast.success(`${t('welcome')}, ${member.name}!`);
       navigate('/vote');
     } catch (err: unknown) {
-      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
+      toast.error(
+        isBrowserFetchFailure(err) ? t('fetch_failed_hint') : getRequestErrorMessage(err) || t('error'),
+      );
     } finally {
       setLoading(false);
     }
@@ -92,7 +95,9 @@ export default function LoginPage() {
         toast.error(t('wrong_password'));
       }
     } catch (err: unknown) {
-      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
+      toast.error(
+        isBrowserFetchFailure(err) ? t('fetch_failed_hint') : getRequestErrorMessage(err) || t('error'),
+      );
     } finally {
       setLoading(false);
     }
@@ -126,7 +131,9 @@ export default function LoginPage() {
         toast.error(t('username_taken'));
       }
     } catch (err: unknown) {
-      toast.error(isBrowserFetchFailure(err) ? t('fetch_failed_hint') : (err instanceof Error ? err.message : t('error')));
+      toast.error(
+        isBrowserFetchFailure(err) ? t('fetch_failed_hint') : getRequestErrorMessage(err) || t('error'),
+      );
     } finally {
       setLoading(false);
     }
