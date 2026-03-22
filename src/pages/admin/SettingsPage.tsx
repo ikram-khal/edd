@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { getRequestErrorMessage } from '@/lib/request-error';
 import { getAdminUsername } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
@@ -37,8 +38,8 @@ export default function SettingsPage() {
       } else {
         toast.error(t('wrong_password'));
       }
-    } catch (err: any) {
-      toast.error(err.message || t('error'));
+    } catch (err: unknown) {
+      toast.error(getRequestErrorMessage(err) || t('error'));
     } finally {
       setLoading(false);
     }

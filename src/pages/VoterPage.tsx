@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getMember, clearMember } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { getRequestErrorMessage } from '@/lib/request-error';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
 
@@ -92,8 +93,8 @@ export default function VoterPage() {
       if (error) throw error;
       if (data) { toast.success(t('vote_accepted')); fetchQuestions(); }
       else { toast.error(t('vote_not_possible')); }
-    } catch (err: any) {
-      toast.error(err.message || t('error'));
+    } catch (err: unknown) {
+      toast.error(getRequestErrorMessage(err) || t('error'));
     } finally {
       setVotingId(null);
     }
