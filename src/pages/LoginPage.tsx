@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
+import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
 import { getSessionId, setMember, setAdmin } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
 
@@ -172,6 +173,12 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md animate-fade-in-up">
+        {!isSupabaseConfigured && (
+          <Alert variant="destructive" className="mb-4 text-left">
+            <AlertTitle>{t('supabase_env_title')}</AlertTitle>
+            <AlertDescription>{t('supabase_env_body')}</AlertDescription>
+          </Alert>
+        )}
         <div className="text-center mb-8">
           <img src={edawisLogo} alt="EDawis" className="w-20 h-20 mx-auto mb-4" />
           <h1 className="text-2xl font-bold tracking-tight">EDawis</h1>

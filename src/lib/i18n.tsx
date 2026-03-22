@@ -110,6 +110,14 @@ const translations = {
   password_too_short: { qq: 'Пароль кеминде 6 символ болыўы керек', ru: 'Пароль должен быть не менее 6 символов' },
   password_min_length: { qq: 'Пароль кеминде 6 символ', ru: 'Минимум 6 символов' },
   username_taken: { qq: 'Бул логин бос емес', ru: 'Этот логин уже занят' },
+  supabase_env_title: {
+    qq: 'Сервер баптаўлары жоқ',
+    ru: 'Не настроены переменные Supabase',
+  },
+  supabase_env_body: {
+    qq: 'Vercel-де VITE_SUPABASE_URL және VITE_SUPABASE_PUBLISHABLE_KEY қосың, содан кейін қайта деплой етің.',
+    ru: 'В Vercel добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY (Environment Variables) и заново задеплойте проект.',
+  },
 } as const;
 
 type TranslationKey = keyof typeof translations;
