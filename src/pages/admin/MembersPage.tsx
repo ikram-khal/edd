@@ -6,7 +6,7 @@ import { parseXlsx, downloadTemplate } from '@/lib/xlsx-utils';
 import { getAdminId } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
-import { UserPlus, Download, Upload, Trash2, UserCheck, UserX } from 'lucide-react';
+import { UserPlus, Download, Upload, Trash2, UserCheck, UserX, Search, Copy, RefreshCw } from 'lucide-react';
 
 interface Member { id: string; name: string; pin: string; session_id: string | null; admin_id?: string | null; }
 
@@ -14,6 +14,7 @@ export default function MembersPage() {
   const { t } = useI18n();
   const [members, setMembers] = useState<Member[]>([]);
   const [name, setName] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -93,14 +94,36 @@ export default function MembersPage() {
     if (fileRef.current) fileRef.current.value = '';
   };
 
+  const copyPins = () => {
+    const text = members.map(m => `${m.name}: ${m.pin}`).join('\n');
+    navigator.clipboard.writeText(text).then(() => toast.success(t('pins_copied')));
+  };
+
+  const resetSessions = async () => {
+    if (!confirm(t('reset_sessions_confirm'))) return;
+    const adminId = getAdminId();
+    if (!adminId) return;
+    await supabase.from('members').update({ session_id: null }).eq('admin_id', adminId);
+    toast.success(t('sessions_reset'));
+    load();
+  };
+
+  const filtered = search.trim()
+    ? members.filter(m => m.name.toLowerCase().includes(search.trim().toLowerCase()) || m.pin.toLowerCase().includes(search.trim().toLowerCase()))
+    : members;
+
+  const onlineCount = members.filter(m => m.session_id).length;
+
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{t('members')}</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">{members.length} {t('members').toLowerCase()}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {members.length} {t('members').toLowerCase()} · {onlineCount} {t('members_online').toLowerCase()}
+          </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={downloadTemplate} className="gap-1.5">
             <Download size={14} />
             {t('download_template')}
@@ -109,6 +132,18 @@ export default function MembersPage() {
             <Upload size={14} />
             {t('upload_xlsx')}
           </Button>
+          {members.length > 0 && (
+            <>
+              <Button variant="outline" size="sm" onClick={copyPins} className="gap-1.5">
+                <Copy size={14} />
+                {t('copy_pins')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={resetSessions} className="gap-1.5 text-amber-600 hover:text-amber-700 border-amber-200 hover:border-amber-300">
+                <RefreshCw size={14} />
+                {t('reset_sessions')}
+              </Button>
+            </>
+          )}
           <input ref={fileRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFileImport} />
         </div>
       </div>
@@ -135,18 +170,33 @@ export default function MembersPage() {
         <p className="text-xs text-muted-foreground mt-2">PIN код автоматик жаратылады (мыс. BAQ1234)</p>
       </div>
 
+      {/* Search */}
+      {members.length > 0 && (
+        <div className="relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={t('search_placeholder')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      )}
+
       {/* Members table */}
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : members.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
               <UserX size={22} className="text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground">{t('no_members')}</p>
+            <p className="text-sm text-muted-foreground">
+              {search.trim() ? t('no_results') : t('no_members')}
+            </p>
           </div>
         ) : (
           <table className="w-full">
@@ -160,7 +210,7 @@ export default function MembersPage() {
               </tr>
             </thead>
             <tbody>
-              {members.map((m, i) => (
+              {filtered.map((m, i) => (
                 <tr key={m.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                   <td className="px-5 py-3 text-sm text-muted-foreground">{i + 1}</td>
                   <td className="px-3 py-3 font-medium text-sm">{m.name}</td>

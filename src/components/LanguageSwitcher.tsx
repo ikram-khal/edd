@@ -9,7 +9,7 @@ export function LanguageSwitcher() {
       {(['qq', 'ru'] as Lang[]).map((l) => (
         <Button
           key={l}
-          variant={lang === l ? 'default' : 'ghost'}
+          variant={lang === l ? 'default' : 'secondary'}
           size="sm"
           className="text-xs px-2 h-7"
           onClick={() => setLang(l)}

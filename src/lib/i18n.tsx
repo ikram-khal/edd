@@ -122,6 +122,21 @@ const translations = {
     qq: 'Серверге қосылу мүмкин емес. Supabase URL тек https://…supabase.co болыўы керек; жоба тоқтатылмағанын тексерің; VPN/блоклаўшы өширің.',
     ru: 'Не удаётся связаться с Supabase. Проверь: в VITE_SUPABASE_URL только адрес вида https://xxx.supabase.co (без /rest/v1); проект в Dashboard не на паузе; после смены env на Vercel сделай Redeploy; попробуй другую сеть/VPN.',
   },
+  recent_meetings: { qq: 'Соңғы мәжилислер', ru: 'Последние заседания' },
+  quick_actions: { qq: 'Тез ис-қәреке', ru: 'Быстрые действия' },
+  search_placeholder: { qq: 'Излеў...', ru: 'Поиск...' },
+  account_info: { qq: 'Аккаунт мағлыўматы', ru: 'Информация об аккаунте' },
+  logged_in_as: { qq: 'Кирген аккаунт', ru: 'Вы вошли как' },
+  no_results: { qq: 'Нәтийже табылмады', ru: 'Ничего не найдено' },
+  go_to_members: { qq: 'Ағзаларға өтиў', ru: 'Перейти к участникам' },
+  go_to_meetings: { qq: 'Мәжилислерге өтиў', ru: 'Перейти к заседаниям' },
+  live_badge: { qq: 'Даўыс жүрип атыр', ru: 'Идёт голосование' },
+  reset_sessions: { qq: 'Сессияларды тазалаў', ru: 'Сбросить сессии' },
+  reset_sessions_confirm: { qq: 'Барлық ағзалар сессияларын тазалаўды қалайсыз ба?', ru: 'Сбросить сессии всех участников?' },
+  sessions_reset: { qq: 'Сессиялар тазаланды', ru: 'Сессии сброшены' },
+  copy_pins: { qq: 'PIN-ларды көширіў', ru: 'Скопировать PIN-ы' },
+  pins_copied: { qq: 'PIN-лар көширилди', ru: 'PIN-ы скопированы' },
+  members_online: { qq: 'Онлайн ағзалар', ru: 'Участников онлайн' },
 } as const;
 
 type TranslationKey = keyof typeof translations;

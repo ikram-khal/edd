@@ -6,11 +6,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { getAdminId } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
-import { Plus, Trash2, ChevronRight, CalendarDays, FileText } from 'lucide-react';
+import { Plus, Trash2, ChevronRight, CalendarDays, FileText, Search } from 'lucide-react';
 
 interface Meeting {
   id: string; protocol_number: string; meeting_date: string; admin_id?: string | null;
-  question_count: number; closed_count: number;
+  question_count: number; closed_count: number; live_count: number;
 }
 
 export default function MeetingsPage() {
@@ -18,6 +18,7 @@ export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [date, setDate] = useState('');
   const [protocol, setProtocol] = useState('');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -39,14 +40,18 @@ export default function MeetingsPage() {
       meetingIds.length > 0
         ? await supabase.from('questions').select('meeting_id, status').in('meeting_id', meetingIds)
         : { data: [] as { meeting_id: string; status: string }[] };
-    const qMap: Record<string, { total: number; closed: number }> = {};
+    const qMap: Record<string, { total: number; closed: number; live: number }> = {};
     (questions || []).forEach(q => {
-      if (!qMap[q.meeting_id]) qMap[q.meeting_id] = { total: 0, closed: 0 };
+      if (!qMap[q.meeting_id]) qMap[q.meeting_id] = { total: 0, closed: 0, live: 0 };
       qMap[q.meeting_id].total++;
       if (q.status === 'closed') qMap[q.meeting_id].closed++;
+      if (q.status === 'voting') qMap[q.meeting_id].live++;
     });
     setMeetings(meetingsData.map(m => ({
-      ...m, question_count: qMap[m.id]?.total || 0, closed_count: qMap[m.id]?.closed || 0,
+      ...m,
+      question_count: qMap[m.id]?.total || 0,
+      closed_count: qMap[m.id]?.closed || 0,
+      live_count: qMap[m.id]?.live || 0,
     })));
     setLoading(false);
   };
@@ -72,6 +77,13 @@ export default function MeetingsPage() {
     toast.success(t('deleted'));
     load();
   };
+
+  const filtered = search.trim()
+    ? meetings.filter(m =>
+        m.protocol_number.toLowerCase().includes(search.trim().toLowerCase()) ||
+        m.meeting_date.toLowerCase().includes(search.trim().toLowerCase())
+      )
+    : meetings;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -109,21 +121,36 @@ export default function MeetingsPage() {
         </div>
       </div>
 
+      {/* Search */}
+      {meetings.length > 0 && (
+        <div className="relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={t('search_placeholder')}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      )}
+
       {/* Meetings list */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : meetings.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="bg-card rounded-2xl border p-16 flex flex-col items-center justify-center text-center shadow-sm">
           <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
             <CalendarDays size={22} className="text-muted-foreground" />
           </div>
-          <p className="text-sm text-muted-foreground">{t('no_meetings')}</p>
+          <p className="text-sm text-muted-foreground">
+            {search.trim() ? t('no_results') : t('no_meetings')}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {meetings.map(m => (
+          {filtered.map(m => (
             <div
               key={m.id}
               className="bg-card rounded-2xl border shadow-sm cursor-pointer hover:shadow-md hover:border-primary/30 transition-all group"
@@ -135,7 +162,15 @@ export default function MeetingsPage() {
                     <FileText size={18} className="text-violet-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">{t('meeting_label')} №{m.protocol_number}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold text-sm">{t('meeting_label')} №{m.protocol_number}</div>
+                      {m.live_count > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          {t('live_badge')}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {m.meeting_date} · {m.question_count} {t('question_label')} ({m.closed_count} {t('closed_label')})
                     </div>
