@@ -162,7 +162,7 @@ export function ResultsView({ questions, meetingProtocol, meetingDate, onClose }
                 disabled={stepIdx === total - 1}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
               >
-                {t('questions')}
+                {t('next_question')}
                 <ChevronRight size={16} />
               </button>
             </div>
