@@ -5,6 +5,7 @@ import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
 import { getSessionId, setMember, setAdmin } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
@@ -144,9 +145,10 @@ export default function LoginPage() {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Language switcher */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Language + theme switchers */}
+      <div className="absolute top-4 right-4 z-10 flex gap-1">
         <LanguageSwitcher />
+        <ThemeToggle />
       </div>
 
       <div className="relative w-full max-w-sm px-4 animate-fade-in-up">

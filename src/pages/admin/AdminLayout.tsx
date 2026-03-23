@@ -3,6 +3,7 @@ import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { isAdmin, clearAdmin } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import edawisLogo from '@/assets/edawis-logo.png';
 import { LayoutDashboard, Users, CalendarDays, Settings, LogOut, Menu, X } from 'lucide-react';
@@ -61,7 +62,10 @@ export default function AdminLayout() {
       </nav>
 
       <div className="p-3 border-t border-sidebar-border space-y-3">
-        <LanguageSwitcher />
+        <div className="flex gap-1">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
         <button
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all w-full"
           onClick={() => { clearAdmin(); navigate('/'); }}
@@ -116,7 +120,10 @@ export default function AdminLayout() {
             <img src={edawisLogo} alt="EDawis" className="w-6 h-6" />
             <span className="font-bold text-sm">EDawis</span>
           </div>
-          <LanguageSwitcher />
+          <div className="flex gap-1">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
         </header>
 
         <main className="flex-1 p-4 md:p-8">
