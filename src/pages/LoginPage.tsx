@@ -139,11 +139,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0b1120]">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1120] via-[#0d1f35] to-[#0a2d2a] pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
+      {/* Subtle background blobs — use primary color tints */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Language + theme switchers */}
       <div className="absolute top-4 right-4 z-10 flex gap-1">
@@ -161,20 +160,20 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border backdrop-blur mb-4 shadow-sm">
             <img src={edawisLogo} alt="EDawis" className="w-9 h-9" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">EDawis</h1>
-          <p className="text-white/50 text-sm mt-1">{t('app_subtitle')}</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">EDawis</h1>
+          <p className="text-muted-foreground text-sm mt-1">{t('app_subtitle')}</p>
         </div>
 
         {/* Mode switcher */}
-        <div className="flex gap-1 mb-5 bg-white/5 border border-white/10 rounded-xl p-1">
+        <div className="flex gap-1 mb-5 bg-muted/60 border border-border rounded-xl p-1">
           <button
             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
               mode === 'voter'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-white/60 hover:text-white/90'
+                ? 'bg-card text-foreground shadow-sm border border-border'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
             onClick={() => setMode('voter')}
           >
@@ -183,8 +182,8 @@ export default function LoginPage() {
           <button
             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
               mode === 'admin'
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-white/60 hover:text-white/90'
+                ? 'bg-card text-foreground shadow-sm border border-border'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
             onClick={() => setMode('admin')}
           >
@@ -193,7 +192,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
           {mode === 'voter' ? (
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-2 mb-1">
@@ -223,7 +222,9 @@ export default function LoginPage() {
               <div className="flex gap-1 mb-5 bg-muted rounded-lg p-1">
                 <button
                   className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    adminTab === 'login' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    adminTab === 'login'
+                      ? 'bg-card shadow-sm text-foreground border border-border'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                   onClick={() => setAdminTab('login')}
                 >
@@ -231,7 +232,9 @@ export default function LoginPage() {
                 </button>
                 <button
                   className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    adminTab === 'register' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    adminTab === 'register'
+                      ? 'bg-card shadow-sm text-foreground border border-border'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                   onClick={() => setAdminTab('register')}
                 >
@@ -243,7 +246,7 @@ export default function LoginPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 mb-1">
                     <User size={16} className="text-muted-foreground" />
-                    <span className="text-sm font-semibold">{t('admin_login')}</span>
+                    <span className="text-sm font-semibold text-foreground">{t('admin_login')}</span>
                   </div>
                   <Input
                     placeholder={t('username')}

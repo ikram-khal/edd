@@ -158,14 +158,14 @@ export default function MeetingsPage() {
             >
               <div className="px-5 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
-                    <FileText size={18} className="text-violet-600" />
+                  <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+                    <FileText size={18} className="text-violet-500" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <div className="font-semibold text-sm">{t('meeting_label')} №{m.protocol_number}</div>
                       {m.live_count > 0 && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                           {t('live_badge')}
                         </span>

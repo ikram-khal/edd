@@ -269,9 +269,9 @@ export default function MeetingDetailPage() {
                   key={q.id}
                   className={`rounded-xl border overflow-hidden ${
                     q.status === 'voting'
-                      ? 'border-emerald-200 bg-emerald-50/50'
+                      ? 'border-emerald-500/30 bg-emerald-500/10'
                       : q.status === 'closed'
-                        ? 'border-slate-200 bg-slate-50/50'
+                        ? 'border-border bg-muted/20'
                         : 'border-border bg-card'
                   }`}
                 >
@@ -280,7 +280,7 @@ export default function MeetingDetailPage() {
                       <div className="flex items-start gap-2.5 flex-1">
                         {q.status === 'draft' && <Clock size={15} className="text-muted-foreground mt-0.5 shrink-0" />}
                         {q.status === 'voting' && <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />}
-                        {q.status === 'closed' && <CheckCircle2 size={15} className="text-slate-500 mt-0.5 shrink-0" />}
+                        {q.status === 'closed' && <CheckCircle2 size={15} className="text-muted-foreground mt-0.5 shrink-0" />}
                         <p className="font-medium text-sm leading-relaxed">{q.text}</p>
                       </div>
                       {q.status === 'draft' && (
@@ -332,10 +332,10 @@ export default function MeetingDetailPage() {
                         <VoteBar votesFor={q.votes_for} votesAgainst={q.votes_against} votesAbstain={q.votes_abstain} />
                         <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
                           q.votes_for > q.votes_against
-                            ? 'bg-emerald-100 text-emerald-700'
+                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                             : q.votes_for < q.votes_against
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-amber-100 text-amber-700'
+                              ? 'bg-red-500/15 text-red-600 dark:text-red-400'
+                              : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                         }`}>
                           {q.votes_for > q.votes_against
                             ? <CheckCircle2 size={12} />

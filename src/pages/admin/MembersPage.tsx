@@ -138,7 +138,7 @@ export default function MembersPage() {
                 <Copy size={14} />
                 {t('copy_pins')}
               </Button>
-              <Button variant="outline" size="sm" onClick={resetSessions} className="gap-1.5 text-amber-600 hover:text-amber-700 border-amber-200 hover:border-amber-300">
+              <Button variant="outline" size="sm" onClick={resetSessions} className="gap-1.5 text-amber-600 hover:text-amber-500 border-amber-500/40 hover:border-amber-500/60">
                 <RefreshCw size={14} />
                 {t('reset_sessions')}
               </Button>
@@ -217,12 +217,12 @@ export default function MembersPage() {
                   <td className="px-3 py-3 font-mono text-sm text-muted-foreground">{m.pin}</td>
                   <td className="px-3 py-3">
                     {m.session_id ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
                         <UserCheck size={11} />
                         {t('registered')}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-full px-2 py-0.5">
                         <UserX size={11} />
                         {t('pending')}
                       </span>

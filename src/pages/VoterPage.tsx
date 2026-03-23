@@ -148,8 +148,8 @@ export default function VoterPage() {
           </div>
         ) : unanswered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-              <CheckCheck size={28} className="text-emerald-600" />
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
+              <CheckCheck size={28} className="text-emerald-500" />
             </div>
             <p className="font-semibold text-foreground">{t('all_voted')}</p>
           </div>
@@ -164,28 +164,28 @@ export default function VoterPage() {
               </div>
               <div className="px-4 pb-4 grid grid-cols-3 gap-2">
                 <button
-                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 active:scale-95 transition-all disabled:opacity-50"
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-500/50 active:scale-95 transition-all disabled:opacity-50"
                   onClick={() => castVote(q.id, 'for')}
                   disabled={votingId === q.id}
                 >
-                  <CheckCircle2 size={24} className="text-emerald-600" />
-                  <span className="text-xs font-semibold text-emerald-700">{t('for_label')}</span>
+                  <CheckCircle2 size={24} className="text-emerald-500" />
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t('for_label')}</span>
                 </button>
                 <button
-                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-red-200 bg-red-50 hover:bg-red-100 hover:border-red-400 active:scale-95 transition-all disabled:opacity-50"
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-red-500/30 bg-red-500/10 hover:bg-red-500/20 hover:border-red-500/50 active:scale-95 transition-all disabled:opacity-50"
                   onClick={() => castVote(q.id, 'against')}
                   disabled={votingId === q.id}
                 >
-                  <XCircle size={24} className="text-red-600" />
-                  <span className="text-xs font-semibold text-red-700">{t('against_label')}</span>
+                  <XCircle size={24} className="text-red-500" />
+                  <span className="text-xs font-semibold text-red-600 dark:text-red-400">{t('against_label')}</span>
                 </button>
                 <button
-                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 active:scale-95 transition-all disabled:opacity-50"
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-border bg-muted/50 hover:bg-muted hover:border-muted-foreground/30 active:scale-95 transition-all disabled:opacity-50"
                   onClick={() => castVote(q.id, 'abstain')}
                   disabled={votingId === q.id}
                 >
-                  <MinusCircle size={24} className="text-slate-500" />
-                  <span className="text-xs font-semibold text-slate-600">{t('abstain_label')}</span>
+                  <MinusCircle size={24} className="text-muted-foreground" />
+                  <span className="text-xs font-semibold text-muted-foreground">{t('abstain_label')}</span>
                 </button>
               </div>
             </div>

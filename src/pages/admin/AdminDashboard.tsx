@@ -60,8 +60,8 @@ export default function AdminDashboard() {
       value: stats.members,
       sub: `${stats.membersOnline} ${t('members_online').toLowerCase()}`,
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
       onClick: () => navigate('/admin/members'),
     },
     {
@@ -69,8 +69,8 @@ export default function AdminDashboard() {
       value: stats.meetings,
       sub: null,
       icon: CalendarDays,
-      color: 'text-violet-600',
-      bg: 'bg-violet-50',
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/10',
       onClick: () => navigate('/admin/meetings'),
     },
     {
@@ -78,8 +78,8 @@ export default function AdminDashboard() {
       value: stats.activeVotes,
       sub: null,
       icon: Vote,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50',
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-500/10',
       onClick: null,
     },
   ];
@@ -144,8 +144,8 @@ export default function AdminDashboard() {
                   onClick={() => navigate(`/admin/meetings/${m.id}`)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
-                      <FileText size={14} className="text-violet-600" />
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
+                      <FileText size={14} className="text-violet-500" />
                     </div>
                     <div>
                       <div className="text-sm font-medium">{t('meeting_label')} №{m.protocol_number}</div>
@@ -170,8 +170,8 @@ export default function AdminDashboard() {
               className="w-full flex items-center gap-4 px-4 py-3 rounded-xl border hover:bg-muted/50 hover:border-primary/30 transition-all group text-left"
               onClick={() => navigate('/admin/meetings')}
             >
-              <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
-                <Plus size={16} className="text-violet-600" />
+              <div className="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
+                <Plus size={16} className="text-violet-500" />
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium">{t('new_meeting')}</div>
@@ -184,8 +184,8 @@ export default function AdminDashboard() {
               className="w-full flex items-center gap-4 px-4 py-3 rounded-xl border hover:bg-muted/50 hover:border-primary/30 transition-all group text-left"
               onClick={() => navigate('/admin/members')}
             >
-              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                <UserPlus size={16} className="text-blue-600" />
+              <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
+                <UserPlus size={16} className="text-blue-500" />
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium">{t('add_member')}</div>
@@ -195,9 +195,9 @@ export default function AdminDashboard() {
             </button>
 
             {stats.activeVotes > 0 && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50/50">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <div className="text-sm font-medium text-emerald-700">
+                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   {stats.activeVotes} {t('active_votes').toLowerCase()}
                 </div>
               </div>
