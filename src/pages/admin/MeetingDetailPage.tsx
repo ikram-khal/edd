@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import {
   Plus, Trash2, Play, FileDown, Users, MessageSquare,
   CheckCircle2, Clock, ChevronLeft, ChevronRight, ListChecks, BarChart2,
+  Pencil, Check, X, ChevronDown, ChevronUp,
 } from 'lucide-react';
 
 interface Member   { id: string; name: string; pin: string; }
@@ -38,6 +39,13 @@ export default function MeetingDetailPage() {
   const [seqMode, setSeqMode]       = useState(false);
   const [showResults, setShowResults] = useState(false);
   const advancingRef                = useRef(false); // prevent double-fire
+
+  // Inline edit
+  const [editingId, setEditingId]   = useState<string | null>(null);
+  const [editText, setEditText]     = useState('');
+
+  // Expanded result cards (closed questions)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const PER_PAGE = 8;
   const activeVoting = questions.find(q => q.status === 'voting') ?? null;
@@ -179,6 +187,30 @@ export default function MeetingDetailPage() {
     if (!confirm(t('delete_question_confirm'))) return;
     await supabase.from('questions').delete().eq('id', qId);
     load();
+  };
+
+  const startEdit = (q: Question) => {
+    setEditingId(q.id);
+    setEditText(q.text);
+  };
+
+  const cancelEdit = () => { setEditingId(null); setEditText(''); };
+
+  const saveEdit = async () => {
+    if (!editingId || !editText.trim()) return;
+    await supabase.from('questions').update({ text: editText.trim() }).eq('id', editingId);
+    setEditingId(null);
+    setEditText('');
+    toast.success(t('question_updated'));
+    load();
+  };
+
+  const toggleExpand = (qId: string) => {
+    setExpandedIds(prev => {
+      const s = new Set(prev);
+      s.has(qId) ? s.delete(qId) : s.add(qId);
+      return s;
+    });
   };
 
   const handleReport = async () => {
@@ -332,63 +364,104 @@ export default function MeetingDetailPage() {
           {questions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">{t('no_questions')}</p>
           ) : (
-            <div className="space-y-3">
-              {questions.map((q, idx) => (
-                <div
-                  key={q.id}
-                  className={`rounded-xl border overflow-hidden ${
-                    q.status === 'voting' ? 'border-emerald-500/30 bg-emerald-500/5'
-                    : q.status === 'closed' ? 'border-border bg-muted/20'
-                    : 'border-border bg-card'
-                  }`}
-                >
-                  <div className="px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-2.5 flex-1">
-                        <span className="text-xs text-muted-foreground font-mono mt-0.5 shrink-0">{idx + 1}.</span>
-                        {q.status === 'draft'  && <Clock size={15} className="text-muted-foreground mt-0.5 shrink-0" />}
-                        {q.status === 'voting' && <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />}
-                        {q.status === 'closed' && <CheckCircle2 size={15} className="text-muted-foreground mt-0.5 shrink-0" />}
-                        <p className="font-medium text-sm leading-relaxed">{q.text}</p>
-                      </div>
-                      {q.status === 'draft' && !seqMode && (
-                        <button
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-                          onClick={() => deleteQuestion(q.id)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+            <div className="divide-y divide-border rounded-xl border overflow-hidden">
+              {questions.map((q, idx) => {
+                const isEditing  = editingId === q.id;
+                const isExpanded = expandedIds.has(q.id);
+                const canEdit    = q.status === 'draft' && !seqMode;
+
+                return (
+                  <div key={q.id} className={`${
+                    q.status === 'voting' ? 'bg-emerald-500/5' : 'bg-card'
+                  }`}>
+
+                    {/* ── Row ── */}
+                    <div className="px-4 py-3 flex items-center gap-3">
+
+                      {/* Index + status icon */}
+                      <span className="text-xs text-muted-foreground font-mono w-5 shrink-0 text-right">{idx + 1}.</span>
+                      {q.status === 'draft'  && <Clock size={14} className="text-muted-foreground shrink-0" />}
+                      {q.status === 'voting' && <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />}
+                      {q.status === 'closed' && <CheckCircle2 size={14} className="text-muted-foreground shrink-0" />}
+
+                      {/* Text or edit input */}
+                      {isEditing ? (
+                        <input
+                          autoFocus
+                          value={editText}
+                          onChange={e => setEditText(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') cancelEdit(); }}
+                          className="flex-1 text-sm border rounded-lg px-2.5 py-1 bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      ) : (
+                        <span className="flex-1 text-sm font-medium leading-snug">{q.text}</span>
                       )}
-                    </div>
 
-                    {/* Draft: individual start (only when NOT in seq mode) */}
-                    {q.status === 'draft' && !seqMode && (
-                      <div className="mt-3">
-                        <Button size="sm" onClick={() => startVoting(q.id)} disabled={attendeeIds.size === 0 || !!activeVoting} className="gap-1.5">
-                          <Play size={13} /> {t('start_voting')}
-                        </Button>
-                      </div>
-                    )}
+                      {/* Right-side actions */}
+                      <div className="flex items-center gap-1 shrink-0">
 
-                    {/* Voting: only progress counter, no results */}
-                    {q.status === 'voting' && (
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          {q.voted_count} / {attendeeIds.size} {t('voted')}
-                        </div>
-                        {/* Manual stop only when NOT in seq mode */}
-                        {!seqMode && (
-                          <Button size="sm" variant="destructive" onClick={() => stopVoting(q.id)} className="gap-1.5 text-xs">
+                        {/* Voting progress badge */}
+                        {q.status === 'voting' && (
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {q.voted_count}/{attendeeIds.size}
+                          </span>
+                        )}
+
+                        {/* Edit mode: save / cancel */}
+                        {isEditing && (
+                          <>
+                            <button onClick={saveEdit} className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-500/10 transition-colors" title={t('save')}>
+                              <Check size={14} />
+                            </button>
+                            <button onClick={cancelEdit} className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted transition-colors" title={t('cancel')}>
+                              <X size={14} />
+                            </button>
+                          </>
+                        )}
+
+                        {/* Draft (not editing): edit + start + delete */}
+                        {canEdit && !isEditing && (
+                          <>
+                            <button onClick={() => startEdit(q)} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title={t('edit')}>
+                              <Pencil size={13} />
+                            </button>
+                            <Button
+                              size="sm"
+                              onClick={() => startVoting(q.id)}
+                              disabled={attendeeIds.size === 0 || !!activeVoting}
+                              className="gap-1 h-7 px-2.5 text-xs"
+                            >
+                              <Play size={11} /> {t('start_voting')}
+                            </Button>
+                            <button onClick={() => deleteQuestion(q.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title={t('delete')}>
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        )}
+
+                        {/* Voting: stop button (non-seq only) */}
+                        {q.status === 'voting' && !seqMode && (
+                          <Button size="sm" variant="destructive" onClick={() => stopVoting(q.id)} className="h-7 px-2.5 text-xs gap-1">
                             {t('stop_voting')}
                           </Button>
                         )}
-                      </div>
-                    )}
 
-                    {/* Closed: show chart only when NOT in seq mode (or results view open) */}
-                    {q.status === 'closed' && !seqMode && (
-                      <div className="mt-4">
+                        {/* Closed: expand toggle */}
+                        {q.status === 'closed' && !seqMode && (
+                          <button
+                            onClick={() => toggleExpand(q.id)}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            title={isExpanded ? t('hide_results') : t('show_results')}
+                          >
+                            {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ── Expanded chart ── */}
+                    {q.status === 'closed' && !seqMode && isExpanded && (
+                      <div className="px-5 pb-5 pt-1 border-t bg-muted/20">
                         <VoteResultChart
                           votesFor={q.votes_for}
                           votesAgainst={q.votes_against}
@@ -397,13 +470,15 @@ export default function MeetingDetailPage() {
                       </div>
                     )}
 
-                    {/* Closed in seq mode: just show "voted" label */}
+                    {/* Closed in seq mode */}
                     {q.status === 'closed' && seqMode && (
-                      <p className="mt-2 text-xs text-muted-foreground">{t('voted_check')}</p>
+                      <div className="px-4 pb-2">
+                        <p className="text-xs text-muted-foreground">{t('voted_check')}</p>
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

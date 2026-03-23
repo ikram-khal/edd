@@ -135,6 +135,12 @@ const translations = {
   copy_pins:       { qq: 'PIN-ларды көширіў', ru: 'Скопировать PIN-ы', en: 'Copy PINs', uz: 'PIN-larni nusxalash' },
   pins_copied:     { qq: 'PIN-лар көширилди', ru: 'PIN-ы скопированы', en: 'PINs copied', uz: 'PIN-lar nusxalandi' },
   members_online:  { qq: 'Онлайн ағзалар', ru: 'Участников онлайн', en: 'Members online', uz: "Onlayn a'zolar" },
+  edit:            { qq: 'Өзгертиў', ru: 'Редактировать', en: 'Edit', uz: 'Tahrirlash' },
+  save:            { qq: 'Сақлаў', ru: 'Сохранить', en: 'Save', uz: 'Saqlash' },
+  cancel:          { qq: 'Бийкар етиў', ru: 'Отмена', en: 'Cancel', uz: 'Bekor qilish' },
+  question_updated:{ qq: 'Мәселе жаңартылды', ru: 'Вопрос обновлён', en: 'Question updated', uz: 'Savol yangilandi' },
+  show_results:    { qq: 'Нәтийжелерди көрсетиў', ru: 'Показать результаты', en: 'Show results', uz: 'Natijalarni ko\'rsatish' },
+  hide_results:    { qq: 'Жасырыў', ru: 'Скрыть', en: 'Hide', uz: 'Yashirish' },
 } as const;
 
 type TranslationKey = keyof typeof translations;
