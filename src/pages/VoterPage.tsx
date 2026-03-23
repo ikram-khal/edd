@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { getMember, clearMember } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
@@ -9,6 +7,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { getRequestErrorMessage } from '@/lib/request-error';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
+import { LogOut, CheckCircle2, XCircle, MinusCircle, Inbox, CheckCheck } from 'lucide-react';
 
 interface ActiveQuestion {
   id: string;
@@ -109,73 +108,101 @@ export default function VoterPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src={edawisLogo} alt="EDawis" className="w-8 h-8" />
-          <div>
-            <h1 className="font-semibold text-sm">EDawis</h1>
-            <p className="text-xs text-muted-foreground">{member.name} (PIN: {member.pin})</p>
+      {/* Header */}
+      <header className="border-b bg-card shadow-sm sticky top-0 z-10">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <img src={edawisLogo} alt="EDawis" className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm leading-none">{member.name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 font-mono">PIN: {member.pin}</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          <Button variant="outline" size="sm" onClick={handleLogout}>{t('logout')}</Button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium hover:bg-muted transition-colors"
+              onClick={handleLogout}
+            >
+              <LogOut size={14} />
+              <span className="hidden sm:inline">{t('logout')}</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="max-w-lg mx-auto p-4 space-y-3">
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">{t('loading')}</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
         ) : unanswered.length === 0 && answered.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <div className="text-4xl mb-3">📭</div>
-              <p className="text-muted-foreground">{t('no_active_votes')}</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <Inbox size={28} className="text-muted-foreground" />
+            </div>
+            <p className="font-medium text-foreground">{t('no_active_votes')}</p>
+            <p className="text-sm text-muted-foreground mt-1">Ожидайте начала голосования</p>
+          </div>
         ) : unanswered.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <div className="text-4xl mb-3">✅</div>
-              <p className="font-medium">{t('all_voted')}</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+              <CheckCheck size={28} className="text-emerald-600" />
+            </div>
+            <p className="font-semibold text-foreground">{t('all_voted')}</p>
+          </div>
         ) : (
           unanswered.map((q) => (
-            <Card key={q.id} className="animate-fade-in-up">
-              <CardHeader className="pb-2">
-                <div className="text-xs text-muted-foreground mb-1">
-                  {t('meeting_label')} №{q.meeting_protocol} • {q.meeting_date}
-                </div>
-                <CardTitle className="text-base leading-relaxed">{q.text}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button className="bg-success hover:bg-success/90 text-success-foreground" onClick={() => castVote(q.id, 'for')} disabled={votingId === q.id}>
-                    {t('vote_for')}
-                  </Button>
-                  <Button variant="destructive" onClick={() => castVote(q.id, 'against')} disabled={votingId === q.id}>
-                    {t('vote_against')}
-                  </Button>
-                  <Button variant="secondary" onClick={() => castVote(q.id, 'abstain')} disabled={votingId === q.id}>
-                    {t('vote_abstain')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={q.id} className="bg-card rounded-2xl border shadow-sm overflow-hidden animate-fade-in-up">
+              <div className="px-5 pt-5 pb-4">
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t('meeting_label')} №{q.meeting_protocol} · {q.meeting_date}
+                </p>
+                <p className="font-semibold text-base leading-snug text-foreground">{q.text}</p>
+              </div>
+              <div className="px-4 pb-4 grid grid-cols-3 gap-2">
+                <button
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-400 active:scale-95 transition-all disabled:opacity-50"
+                  onClick={() => castVote(q.id, 'for')}
+                  disabled={votingId === q.id}
+                >
+                  <CheckCircle2 size={24} className="text-emerald-600" />
+                  <span className="text-xs font-semibold text-emerald-700">{t('for_label')}</span>
+                </button>
+                <button
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-red-200 bg-red-50 hover:bg-red-100 hover:border-red-400 active:scale-95 transition-all disabled:opacity-50"
+                  onClick={() => castVote(q.id, 'against')}
+                  disabled={votingId === q.id}
+                >
+                  <XCircle size={24} className="text-red-600" />
+                  <span className="text-xs font-semibold text-red-700">{t('against_label')}</span>
+                </button>
+                <button
+                  className="flex flex-col items-center gap-2 py-4 px-2 rounded-xl border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 active:scale-95 transition-all disabled:opacity-50"
+                  onClick={() => castVote(q.id, 'abstain')}
+                  disabled={votingId === q.id}
+                >
+                  <MinusCircle size={24} className="text-slate-500" />
+                  <span className="text-xs font-semibold text-slate-600">{t('abstain_label')}</span>
+                </button>
+              </div>
+            </div>
           ))
         )}
 
         {answered.length > 0 && (
-          <div className="pt-4">
-            <p className="text-xs text-muted-foreground mb-2">⚠️ {t('already_voted')}:</p>
+          <div className="pt-2">
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-1">{t('already_voted')}:</p>
             {answered.map(q => (
-              <Card key={q.id} className="mb-2 opacity-60">
-                <CardContent className="py-3">
-                  <p className="text-sm">{q.text}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t('voted_check')}</p>
-                </CardContent>
-              </Card>
+              <div key={q.id} className="bg-card/60 border rounded-xl px-4 py-3 mb-2 flex items-center gap-3 opacity-60">
+                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                <div>
+                  <p className="text-sm text-foreground">{q.text}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('voted_check')}</p>
+                </div>
+              </div>
             ))}
           </div>
         )}

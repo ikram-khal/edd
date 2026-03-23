@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
 import { getSessionId, setMember, setAdmin } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
@@ -12,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import edawisLogo from '@/assets/edawis-logo.png';
 import { getRequestErrorMessage } from '@/lib/request-error';
+import { KeyRound, User, Loader2 } from 'lucide-react';
 
 function isBrowserFetchFailure(err: unknown): boolean {
   const msg =
@@ -31,6 +29,7 @@ function isBrowserFetchFailure(err: unknown): boolean {
 export default function LoginPage() {
   const { t } = useI18n();
   const [mode, setMode] = useState<'voter' | 'admin'>('voter');
+  const [adminTab, setAdminTab] = useState<'login' | 'register'>('login');
   const [pin, setPin] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -38,7 +37,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Reset fields when switching modes
   useEffect(() => {
     setUsername('');
     setPassword('');
@@ -139,129 +137,167 @@ export default function LoginPage() {
     }
   };
 
-  // --- Admin login form (reusable) ---
-  const AdminLoginForm = (
-    <div className="space-y-4">
-      <Input
-        placeholder={t('username')}
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder={t('password')}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
-      />
-      <Button className="w-full" onClick={handleAdminLogin} disabled={loading}>
-        {loading ? t('checking') : t('login')}
-      </Button>
-    </div>
-  );
-
-  // --- Admin registration form (reusable) ---
-  const AdminRegisterForm = (
-    <div className="space-y-4">
-      <Input
-        placeholder={t('username')}
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder={t('password')}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder={t('confirm_password')}
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleAdminRegister()}
-      />
-      <p className="text-xs text-muted-foreground">{t('password_min_length')}</p>
-      <Button className="w-full" onClick={handleAdminRegister} disabled={loading}>
-        {loading ? t('checking') : t('register')}
-      </Button>
-    </div>
-  );
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0b1120]">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0b1120] via-[#0d1f35] to-[#0a2d2a] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Language switcher */}
+      <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher />
       </div>
 
-      <div className="w-full max-w-md animate-fade-in-up">
+      <div className="relative w-full max-w-sm px-4 animate-fade-in-up">
         {!isSupabaseConfigured && (
           <Alert variant="destructive" className="mb-4 text-left">
             <AlertTitle>{t('supabase_env_title')}</AlertTitle>
             <AlertDescription>{t('supabase_env_body')}</AlertDescription>
           </Alert>
         )}
+
+        {/* Logo */}
         <div className="text-center mb-8">
-          <img src={edawisLogo} alt="EDawis" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold tracking-tight">EDawis</h1>
-          <p className="text-muted-foreground mt-1">{t('app_subtitle')}</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur mb-4">
+            <img src={edawisLogo} alt="EDawis" className="w-9 h-9" />
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">EDawis</h1>
+          <p className="text-white/50 text-sm mt-1">{t('app_subtitle')}</p>
         </div>
 
-        <div className="flex gap-2 mb-6">
-          <Button
-            variant={mode === 'voter' ? 'default' : 'outline'}
-            className="flex-1"
+        {/* Mode switcher */}
+        <div className="flex gap-1 mb-5 bg-white/5 border border-white/10 rounded-xl p-1">
+          <button
+            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              mode === 'voter'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-white/60 hover:text-white/90'
+            }`}
             onClick={() => setMode('voter')}
           >
             {t('voter')}
-          </Button>
-          <Button
-            variant={mode === 'admin' ? 'default' : 'outline'}
-            className="flex-1"
+          </button>
+          <button
+            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              mode === 'admin'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-white/60 hover:text-white/90'
+            }`}
             onClick={() => setMode('admin')}
           >
             {t('admin')}
-          </Button>
+          </button>
         </div>
 
-        {mode === 'voter' ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('enter_pin')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Input
-                  placeholder={t('enter_pin')}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleVoterLogin()}
-                  maxLength={10}
-                  className="text-center text-lg tracking-widest"
-                />
-                <Button className="w-full" onClick={handleVoterLogin} disabled={loading}>
-                  {loading ? t('checking') : t('login')}
-                </Button>
+        {/* Card */}
+        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          {mode === 'voter' ? (
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-2 mb-1">
+                <KeyRound size={16} className="text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">{t('enter_pin')}</h2>
               </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('admin')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="login">{t('login')}</TabsTrigger>
-                  <TabsTrigger value="register">{t('register')}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="login">{AdminLoginForm}</TabsContent>
-                <TabsContent value="register">{AdminRegisterForm}</TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        )}
+              <Input
+                placeholder="••••••••"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleVoterLogin()}
+                maxLength={10}
+                className="text-center text-lg tracking-[0.3em] font-mono h-12"
+              />
+              <button
+                className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                onClick={handleVoterLogin}
+                disabled={loading}
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                {loading ? t('checking') : t('login')}
+              </button>
+            </div>
+          ) : (
+            <div className="p-6">
+              {/* Admin sub-tabs */}
+              <div className="flex gap-1 mb-5 bg-muted rounded-lg p-1">
+                <button
+                  className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    adminTab === 'login' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setAdminTab('login')}
+                >
+                  {t('login')}
+                </button>
+                <button
+                  className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    adminTab === 'register' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => setAdminTab('register')}
+                >
+                  {t('register')}
+                </button>
+              </div>
+
+              {adminTab === 'login' ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <User size={16} className="text-muted-foreground" />
+                    <span className="text-sm font-semibold">{t('admin_login')}</span>
+                  </div>
+                  <Input
+                    placeholder={t('username')}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <Input
+                    type="password"
+                    placeholder={t('password')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+                  />
+                  <button
+                    className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 mt-1"
+                    onClick={handleAdminLogin}
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 size={16} className="animate-spin" />}
+                    {loading ? t('checking') : t('login')}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Input
+                    placeholder={t('username')}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                  <Input
+                    type="password"
+                    placeholder={t('password')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <Input
+                    type="password"
+                    placeholder={t('confirm_password')}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAdminRegister()}
+                  />
+                  <p className="text-xs text-muted-foreground">{t('password_min_length')}</p>
+                  <button
+                    className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                    onClick={handleAdminRegister}
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 size={16} className="animate-spin" />}
+                    {loading ? t('checking') : t('register')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

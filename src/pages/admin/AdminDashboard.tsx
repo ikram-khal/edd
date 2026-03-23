@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { getAdminId } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
+import { Users, CalendarDays, Vote } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { t } = useI18n();
@@ -36,25 +36,46 @@ export default function AdminDashboard() {
   }, []);
 
   const cards = [
-    { label: t('members'), value: stats.members, icon: '👥' },
-    { label: t('meetings'), value: stats.meetings, icon: '📋' },
-    { label: t('active_votes'), value: stats.activeVotes, icon: '🗳️' },
+    {
+      label: t('members'),
+      value: stats.members,
+      icon: Users,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: t('meetings'),
+      value: stats.meetings,
+      icon: CalendarDays,
+      color: 'text-violet-600',
+      bg: 'bg-violet-50',
+    },
+    {
+      label: t('active_votes'),
+      value: stats.activeVotes,
+      icon: Vote,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
   ];
 
   return (
     <div className="animate-fade-in-up">
-      <h2 className="text-xl font-bold mb-6">{t('control_panel')}</h2>
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold tracking-tight">{t('control_panel')}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{t('admin_panel')}</p>
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map(c => (
-          <Card key={c.label}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{c.label}</CardTitle>
-              <span className="text-2xl">{c.icon}</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{c.value}</div>
-            </CardContent>
-          </Card>
+          <div key={c.label} className="bg-card rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-sm font-medium text-muted-foreground">{c.label}</p>
+              <div className={`w-10 h-10 rounded-xl ${c.bg} flex items-center justify-center`}>
+                <c.icon size={20} className={c.color} strokeWidth={2} />
+              </div>
+            </div>
+            <div className="text-4xl font-bold tracking-tight">{c.value}</div>
+          </div>
         ))}
       </div>
     </div>

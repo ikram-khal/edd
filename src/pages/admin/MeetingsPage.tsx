@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { getAdminId } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
+import { Plus, Trash2, ChevronRight, CalendarDays, FileText } from 'lucide-react';
 
 interface Meeting {
   id: string; protocol_number: string; meeting_date: string; admin_id?: string | null;
@@ -75,34 +75,83 @@ export default function MeetingsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <h2 className="text-xl font-bold">{t('meetings')}</h2>
-      <Card>
-        <CardHeader><CardTitle className="text-base">{t('new_meeting')}</CardTitle></CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Input placeholder={t('date_placeholder')} value={date} onChange={e => setDate(e.target.value)} className="flex-1" />
-            <Input placeholder={`${t('protocol_number')} №`} value={protocol} onChange={e => setProtocol(e.target.value)} className="w-32" />
-            <Button onClick={createMeeting}>{t('create')}</Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">{t('meetings')}</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">{meetings.length} {t('meetings').toLowerCase()}</p>
+        </div>
+      </div>
 
+      {/* Create meeting form */}
+      <div className="bg-card rounded-2xl border p-5 shadow-sm">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Plus size={15} className="text-primary" />
+          {t('new_meeting')}
+        </h3>
+        <div className="flex gap-2">
+          <Input
+            placeholder={t('date_placeholder')}
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="flex-1"
+          />
+          <Input
+            placeholder={`${t('protocol_number')} №`}
+            value={protocol}
+            onChange={e => setProtocol(e.target.value)}
+            className="w-32"
+            onKeyDown={e => e.key === 'Enter' && createMeeting()}
+          />
+          <Button onClick={createMeeting} className="gap-1.5">
+            <Plus size={14} />
+            {t('create')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Meetings list */}
       {loading ? (
-        <div className="text-center py-8 text-muted-foreground">{t('loading')}</div>
+        <div className="flex items-center justify-center py-16">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
       ) : meetings.length === 0 ? (
-        <Card><CardContent className="py-8 text-center text-muted-foreground">{t('no_meetings')}</CardContent></Card>
+        <div className="bg-card rounded-2xl border p-16 flex flex-col items-center justify-center text-center shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
+            <CalendarDays size={22} className="text-muted-foreground" />
+          </div>
+          <p className="text-sm text-muted-foreground">{t('no_meetings')}</p>
+        </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="space-y-2">
           {meetings.map(m => (
-            <Card key={m.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/admin/meetings/${m.id}`)}>
-              <CardContent className="py-4 flex items-center justify-between">
-                <div>
-                  <div className="font-semibold">{t('meeting_label')} №{m.protocol_number}</div>
-                  <div className="text-sm text-muted-foreground">{m.meeting_date} • {m.question_count} {t('question_label')} ({m.closed_count} {t('closed_label')})</div>
+            <div
+              key={m.id}
+              className="bg-card rounded-2xl border shadow-sm cursor-pointer hover:shadow-md hover:border-primary/30 transition-all group"
+              onClick={() => navigate(`/admin/meetings/${m.id}`)}
+            >
+              <div className="px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                    <FileText size={18} className="text-violet-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm">{t('meeting_label')} №{m.protocol_number}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {m.meeting_date} · {m.question_count} {t('question_label')} ({m.closed_count} {t('closed_label')})
+                    </div>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteMeeting(m.id); }} className="text-destructive">🗑️</Button>
-              </CardContent>
-            </Card>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
+                    onClick={(e) => { e.stopPropagation(); deleteMeeting(m.id); }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                  <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

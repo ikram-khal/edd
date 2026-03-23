@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { VoteBar } from '@/components/VoteBar';
@@ -10,6 +9,10 @@ import { generateReport } from '@/lib/docx-report';
 import { getAdminId } from '@/lib/session';
 import { useI18n } from '@/lib/i18n';
 import { toast } from 'sonner';
+import {
+  Plus, Trash2, Play, Square, FileDown, Users, MessageSquare,
+  CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight
+} from 'lucide-react';
 
 interface Member { id: string; name: string; pin: string; }
 interface Question {
@@ -146,108 +149,209 @@ export default function MeetingDetailPage() {
     return t('tie');
   };
 
-  if (loading) return <div className="text-center py-12 text-muted-foreground">{t('loading')}</div>;
-  if (!meeting) return <div className="text-center py-12">{t('meeting_not_found')}</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!meeting) return <div className="text-center py-12 text-muted-foreground">{t('meeting_not_found')}</div>;
 
-  const statusIcon = (s: string) => s === 'draft' ? '📝' : s === 'voting' ? '🟢' : '🔴';
   const pagedMembers = members.slice(attendeePage * PER_PAGE, (attendeePage + 1) * PER_PAGE);
   const totalPages = Math.ceil(members.length / PER_PAGE);
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold">{t('meeting_label')} №{meeting.protocol_number}</h2>
-          <p className="text-sm text-muted-foreground">{meeting.meeting_date}</p>
+          <h2 className="text-2xl font-bold tracking-tight">
+            {t('meeting_label')} №{meeting.protocol_number}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">{meeting.meeting_date}</p>
         </div>
-        <Button variant="outline" onClick={handleReport} disabled={questions.filter(q => q.status === 'closed').length === 0}>
-          📄 {t('download_report')} (DOCX)
+        <Button
+          variant="outline"
+          onClick={handleReport}
+          disabled={questions.filter(q => q.status === 'closed').length === 0}
+          className="gap-2 shrink-0"
+        >
+          <FileDown size={15} />
+          {t('download_report')} (DOCX)
         </Button>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">{t('attendees')} ({attendeeIds.size} / {members.length})</CardTitle>
-          <Button variant="outline" size="sm" onClick={selectAll}>{t('select_all')}</Button>
-        </CardHeader>
-        <CardContent>
+      {/* Attendees */}
+      <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users size={16} className="text-primary" />
+            <h3 className="font-semibold text-sm">{t('attendees')}</h3>
+            <span className="text-xs bg-primary/10 text-primary font-medium px-2 py-0.5 rounded-full">
+              {attendeeIds.size} / {members.length}
+            </span>
+          </div>
+          <Button variant="outline" size="sm" onClick={selectAll} className="text-xs">
+            {t('select_all')}
+          </Button>
+        </div>
+        <div className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
             {pagedMembers.map(m => (
-              <label key={m.id} className="flex items-center gap-2 p-2 rounded hover:bg-muted cursor-pointer">
-                <Checkbox checked={attendeeIds.has(m.id)} onCheckedChange={() => toggleAttendee(m.id)} />
-                <span className="text-sm">{m.name}</span>
+              <label
+                key={m.id}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+              >
+                <Checkbox
+                  checked={attendeeIds.has(m.id)}
+                  onCheckedChange={() => toggleAttendee(m.id)}
+                />
+                <span className="text-sm font-medium">{m.name}</span>
               </label>
             ))}
           </div>
           {totalPages > 1 && (
-            <div className="flex gap-2 mt-3 justify-center">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <Button key={i} variant={attendeePage === i ? 'default' : 'outline'} size="sm" onClick={() => setAttendeePage(i)}>{i + 1}</Button>
-              ))}
+            <div className="flex items-center gap-2 mt-4 justify-center">
+              <button
+                className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-40 transition-colors"
+                onClick={() => setAttendeePage(p => Math.max(0, p - 1))}
+                disabled={attendeePage === 0}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-xs text-muted-foreground">
+                {attendeePage + 1} / {totalPages}
+              </span>
+              <button
+                className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-40 transition-colors"
+                onClick={() => setAttendeePage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={attendeePage === totalPages - 1}
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader><CardTitle className="text-base">{t('questions')}</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      {/* Questions */}
+      <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b flex items-center gap-2">
+          <MessageSquare size={16} className="text-primary" />
+          <h3 className="font-semibold text-sm">{t('questions')}</h3>
+          <span className="text-xs bg-primary/10 text-primary font-medium px-2 py-0.5 rounded-full">
+            {questions.length}
+          </span>
+        </div>
+        <div className="p-4 space-y-4">
+          {/* Add question */}
           <div className="flex gap-2">
-            <Input placeholder={t('new_question_placeholder')} value={newQuestion} onChange={e => setNewQuestion(e.target.value)} className="flex-1" />
-            <Button onClick={addQuestion}>{t('add')}</Button>
+            <Input
+              placeholder={t('new_question_placeholder')}
+              value={newQuestion}
+              onChange={e => setNewQuestion(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addQuestion()}
+              className="flex-1"
+            />
+            <Button onClick={addQuestion} className="gap-1.5">
+              <Plus size={14} />
+              {t('add')}
+            </Button>
           </div>
+
           {questions.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">{t('no_questions')}</p>
+            <p className="text-sm text-muted-foreground text-center py-6">{t('no_questions')}</p>
           ) : (
             <div className="space-y-3">
               {questions.map(q => (
-                <Card key={q.id} className="border">
-                  <CardContent className="py-4 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <span className="mr-2">{statusIcon(q.status)}</span>
-                        <span className="font-medium">{q.text}</span>
+                <div
+                  key={q.id}
+                  className={`rounded-xl border overflow-hidden ${
+                    q.status === 'voting'
+                      ? 'border-emerald-200 bg-emerald-50/50'
+                      : q.status === 'closed'
+                        ? 'border-slate-200 bg-slate-50/50'
+                        : 'border-border bg-card'
+                  }`}
+                >
+                  <div className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5 flex-1">
+                        {q.status === 'draft' && <Clock size={15} className="text-muted-foreground mt-0.5 shrink-0" />}
+                        {q.status === 'voting' && <div className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />}
+                        {q.status === 'closed' && <CheckCircle2 size={15} className="text-slate-500 mt-0.5 shrink-0" />}
+                        <p className="font-medium text-sm leading-relaxed">{q.text}</p>
                       </div>
                       {q.status === 'draft' && (
-                        <Button variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => deleteQuestion(q.id)}>🗑️</Button>
+                        <button
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                          onClick={() => deleteQuestion(q.id)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       )}
                     </div>
+
                     {q.status === 'draft' && (
-                      <Button size="sm" onClick={() => startVoting(q.id)} disabled={attendeeIds.size === 0}>
-                        ▶️ {t('start_voting')}
-                      </Button>
+                      <div className="mt-3">
+                        <Button
+                          size="sm"
+                          onClick={() => startVoting(q.id)}
+                          disabled={attendeeIds.size === 0}
+                          className="gap-1.5"
+                        >
+                          <Play size={13} />
+                          {t('start_voting')}
+                        </Button>
+                      </div>
                     )}
+
                     {q.status === 'voting' && (
-                      <div className="space-y-2">
+                      <div className="mt-3 space-y-3">
                         <VoteBar votesFor={q.votes_for} votesAgainst={q.votes_against} votesAbstain={q.votes_abstain} />
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {q.voted_count} / {attendeeIds.size} {t('voted')}
                           </span>
-                          <Button size="sm" variant="destructive" onClick={() => stopVoting(q.id)}>
-                            ⏹️ {t('stop_voting')} ({attendeeIds.size - q.voted_count} {t('not_voted')})
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => stopVoting(q.id)}
+                            className="gap-1.5"
+                          >
+                            <Square size={12} />
+                            {t('stop_voting')} ({attendeeIds.size - q.voted_count} {t('not_voted')})
                           </Button>
                         </div>
                       </div>
                     )}
+
                     {q.status === 'closed' && (
-                      <div className="space-y-2">
+                      <div className="mt-3 space-y-2">
                         <VoteBar votesFor={q.votes_for} votesAgainst={q.votes_against} votesAbstain={q.votes_abstain} />
-                        <div className={`text-sm font-bold ${
-                          q.votes_for > q.votes_against ? 'text-emerald-600' :
-                          q.votes_for < q.votes_against ? 'text-red-600' : 'text-amber-600'
+                        <div className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                          q.votes_for > q.votes_against
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : q.votes_for < q.votes_against
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-amber-100 text-amber-700'
                         }`}>
+                          {q.votes_for > q.votes_against
+                            ? <CheckCircle2 size={12} />
+                            : <XCircle size={12} />
+                          }
                           {verdict(q)}
                         </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
