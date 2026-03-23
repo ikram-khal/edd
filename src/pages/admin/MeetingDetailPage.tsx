@@ -149,7 +149,12 @@ export default function MeetingDetailPage() {
 
   const stopVoting = async (qId: string) => {
     await supabase.from('questions').update({ status: 'closed' }).eq('id', qId);
-    if (seqMode) { setSeqMode(false); }
+    if (seqMode) {
+      setSeqMode(false);
+    } else {
+      // Single question: auto-expand result after stopping
+      setExpandedIds(prev => new Set(prev).add(qId));
+    }
     toast.success(t('voting_stopped'));
     load();
   };
@@ -241,8 +246,8 @@ export default function MeetingDetailPage() {
   return (
     <div className="space-y-6 animate-fade-in-up">
 
-      {/* ── Sequential voting modal ───────────────────────────────── */}
-      {seqMode && activeVoting && (
+      {/* ── Voting modal (single or sequential) ──────────────────── */}
+      {activeVoting && (
         <VotingLiveModal
           open
           questionText={activeVoting.text}
@@ -250,8 +255,9 @@ export default function MeetingDetailPage() {
           totalQuestions={seqTotal}
           votedCount={activeVoting.voted_count}
           totalCount={attendeeIds.size}
+          seqMode={seqMode}
           isLastQuestion={draftQuestions.length === 0}
-          onStop={() => { stopVoting(activeVoting.id); setSeqMode(false); }}
+          onStop={() => stopVoting(activeVoting.id)}
           onNext={advanceSequential}
         />
       )}
@@ -369,6 +375,7 @@ export default function MeetingDetailPage() {
                 const isEditing  = editingId === q.id;
                 const isExpanded = expandedIds.has(q.id);
                 const canEdit    = q.status === 'draft' && !seqMode;
+                const canDelete  = q.status !== 'voting' && !seqMode;
 
                 return (
                   <div key={q.id} className={`${
@@ -433,9 +440,6 @@ export default function MeetingDetailPage() {
                             >
                               <Play size={11} /> {t('start_voting')}
                             </Button>
-                            <button onClick={() => deleteQuestion(q.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title={t('delete')}>
-                              <Trash2 size={13} />
-                            </button>
                           </>
                         )}
 
@@ -454,6 +458,17 @@ export default function MeetingDetailPage() {
                             title={isExpanded ? t('hide_results') : t('show_results')}
                           >
                             {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                          </button>
+                        )}
+
+                        {/* Delete — for draft and closed (not voting, not seqMode) */}
+                        {canDelete && !isEditing && (
+                          <button
+                            onClick={() => deleteQuestion(q.id)}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            title={t('delete')}
+                          >
+                            <Trash2 size={13} />
                           </button>
                         )}
                       </div>

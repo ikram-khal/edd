@@ -8,14 +8,15 @@ interface Props {
   totalQuestions: number;
   votedCount: number;
   totalCount: number;
+  seqMode: boolean;        // false = single question voting
   onStop: () => void;
-  onNext: () => void;      // manual advance
+  onNext: () => void;      // manual advance (seq mode only)
   isLastQuestion: boolean;
 }
 
 export function VotingLiveModal({
   open, questionText, questionIndex, totalQuestions,
-  votedCount, totalCount, onStop, onNext, isLastQuestion,
+  votedCount, totalCount, seqMode, onStop, onNext, isLastQuestion,
 }: Props) {
   const { t } = useI18n();
   if (!open) return null;
@@ -32,24 +33,26 @@ export function VotingLiveModal({
 
         <div className="px-8 py-8 flex flex-col items-center text-center gap-5">
 
-          {/* Question counter pill */}
-          <div className="flex items-center gap-2 bg-muted rounded-full px-4 py-1.5">
-            {Array.from({ length: totalQuestions }).map((_, i) => (
-              <span
-                key={i}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  i < questionIndex - 1
-                    ? 'bg-emerald-500'
-                    : i === questionIndex - 1
-                      ? 'bg-primary w-4'
-                      : 'bg-muted-foreground/30'
-                }`}
-              />
-            ))}
-            <span className="text-xs text-muted-foreground ml-1 font-medium">
-              {questionIndex} / {totalQuestions}
-            </span>
-          </div>
+          {/* Question counter pill — only in sequential mode */}
+          {seqMode && (
+            <div className="flex items-center gap-2 bg-muted rounded-full px-4 py-1.5">
+              {Array.from({ length: totalQuestions }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    i < questionIndex - 1
+                      ? 'bg-emerald-500'
+                      : i === questionIndex - 1
+                        ? 'bg-primary w-4'
+                        : 'bg-muted-foreground/30'
+                  }`}
+                />
+              ))}
+              <span className="text-xs text-muted-foreground ml-1 font-medium">
+                {questionIndex} / {totalQuestions}
+              </span>
+            </div>
+          )}
 
           {/* Radar animation or all-voted state */}
           {allVoted ? (
@@ -107,31 +110,35 @@ export function VotingLiveModal({
           <div className="flex gap-3 w-full">
             <button
               onClick={onStop}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/40 text-destructive font-medium text-sm hover:bg-destructive/10 active:scale-95 transition-all"
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-destructive/40 text-destructive font-medium text-sm hover:bg-destructive/10 active:scale-95 transition-all ${seqMode ? 'flex-1' : 'w-full'}`}
             >
               <Square size={13} fill="currentColor" />
               {t('stop_voting')}
             </button>
-            <button
-              onClick={onNext}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95 transition-all shadow-sm ${
-                allVoted
-                  ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/30'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              }`}
-            >
-              {isLastQuestion ? (
-                <>
-                  <CheckCheck size={14} />
-                  {t('stop_voting')}
-                </>
-              ) : (
-                <>
-                  {allVoted ? t('start_voting') : t('start_voting')}
-                  <ChevronRight size={14} />
-                </>
-              )}
-            </button>
+
+            {/* "Next question" button — sequential mode only */}
+            {seqMode && (
+              <button
+                onClick={onNext}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95 transition-all shadow-sm ${
+                  allVoted
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/30'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                }`}
+              >
+                {isLastQuestion ? (
+                  <>
+                    <CheckCheck size={14} />
+                    {t('finish_voting')}
+                  </>
+                ) : (
+                  <>
+                    {t('next_question')}
+                    <ChevronRight size={14} />
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
         </div>

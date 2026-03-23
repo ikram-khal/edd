@@ -141,6 +141,8 @@ const translations = {
   question_updated:{ qq: 'Мәселе жаңартылды', ru: 'Вопрос обновлён', en: 'Question updated', uz: 'Savol yangilandi' },
   show_results:    { qq: 'Нәтийжелерди көрсетиў', ru: 'Показать результаты', en: 'Show results', uz: 'Natijalarni ko\'rsatish' },
   hide_results:    { qq: 'Жасырыў', ru: 'Скрыть', en: 'Hide', uz: 'Yashirish' },
+  next_question:   { qq: 'Кейинги мәселе', ru: 'Следующий вопрос', en: 'Next question', uz: 'Keyingi savol' },
+  finish_voting:   { qq: 'Даўыс бериўди жабыў', ru: 'Завершить голосование', en: 'Finish voting', uz: 'Ovoz berishni yakunlash' },
 } as const;
 
 type TranslationKey = keyof typeof translations;
