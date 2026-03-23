@@ -2,14 +2,10 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sun, Moon } from 'lucide-react';
 
-function getInitialDark(): boolean {
-  const saved = localStorage.getItem('edawis_theme');
-  if (saved) return saved === 'dark';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
 export function ThemeToggle() {
-  const [dark, setDark] = useState(getInitialDark);
+  const [dark, setDark] = useState(
+    () => document.documentElement.classList.contains('dark')
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);

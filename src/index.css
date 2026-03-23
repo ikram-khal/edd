@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
+    /* Light theme */
+    --background: 210 20% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -12,16 +13,16 @@
     --popover-foreground: 222 47% 11%;
     --primary: 173 80% 34%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 94%;
+    --secondary: 210 14% 93%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 220 14% 94%;
+    --muted: 210 14% 93%;
     --muted-foreground: 215 16% 47%;
-    --accent: 220 14% 94%;
+    --accent: 210 14% 93%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 214 13% 89%;
+    --input: 214 13% 89%;
     --ring: 173 80% 34%;
     --radius: 0.625rem;
     --success: 142 71% 35%;
@@ -39,25 +40,35 @@
   }
 
   .dark {
-    --background: 222 47% 8%;
-    --foreground: 210 40% 95%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 95%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 95%;
-    --primary: 173 80% 40%;
+    /* Dark theme — neutral dark gray, not navy */
+    --background: 0 0% 9%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 13%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 173 70% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 40% 18%;
-    --secondary-foreground: 210 40% 95%;
-    --muted: 222 40% 16%;
-    --muted-foreground: 215 20% 55%;
-    --accent: 222 40% 18%;
-    --accent-foreground: 210 40% 95%;
+    --secondary: 0 0% 19%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 19%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 19%;
+    --accent-foreground: 0 0% 90%;
     --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 35% 20%;
-    --input: 222 35% 20%;
-    --ring: 173 80% 40%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 173 70% 42%;
+    /* Sidebar stays navy — creates clear contrast with dark main bg */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 215 25% 68%;
+    --sidebar-primary: 173 70% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 47% 17%;
+    --sidebar-accent-foreground: 215 25% 88%;
+    --sidebar-border: 222 35% 18%;
+    --sidebar-ring: 173 70% 48%;
   }
 }
 
